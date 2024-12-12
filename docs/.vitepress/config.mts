@@ -6,24 +6,19 @@ export default defineConfig({
   description: "wan",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    search: {
+      provider: "local",
+    },
+    outline: "deep", // 默认显示较深的目录层级
     nav: [
       { text: "首页", link: "/" },
-      { text: "知识记录", link: "/知识记录/index.md" },
-      { text: "组件库", link: "/组件库/index.md" },
+      { text: "个人笔记", link: "/个人笔记/JavaScript.md" },
     ],
     sidebar: {
-      "/知识记录/": [
+      "/个人笔记/": [
         {
           text: "目录",
-          items: [
-            { text: "JavaScript", link: "/知识记录/JavaScript.md" },
-            { text: "HTML", link: "/知识记录/HTML.md" },
-          ],
-        },
-      ],
-      "/组件库/": [
-        {
-          text: "目录",
+          items: [{ text: "JavaScript", link: "/个人笔记/JavaScript.md" }],
         },
       ],
     },
