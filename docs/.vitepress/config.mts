@@ -1,6 +1,6 @@
+// \wan-blob\docs\.vitepress\config.mts
 import { defineConfig } from "vitepress";
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: "/wl-blob/", // 设置为你的 GitHub 仓库名称
   title: "阿万の博客",
