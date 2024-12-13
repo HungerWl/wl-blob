@@ -312,3 +312,351 @@ function debounce(fn, wait) {
 }
 ```
 
+## 元素类型判断选择
+
+- ### 基本数据类型判断
+
+```tex
+选择 typeof 性能优于 Object.prototype.toString.call()
+- typeof的缺陷
+console.log(typeof null); // "object" (这是 JS 的历史遗留问题)
+console.log(typeof {}); // "object"
+console.log(typeof []); // "object" (数组也是对象)
+```
+
+- ### 数据类型不确定，且要求精确度
+
+```js
+选择 Object.prototype.toString.call()
+console.log(Object.prototype.toString.call(123)); // "[object Number]"
+console.log(Object.prototype.toString.call('hello')); // "[object String]"
+console.log(Object.prototype.toString.call(true)); // "[object Boolean]"
+console.log(Object.prototype.toString.call(undefined)); // "[object Undefined]"
+console.log(Object.prototype.toString.call(null)); // "[object Null]"
+console.log(Object.prototype.toString.call([])); // "[object Array]"
+console.log(Object.prototype.toString.call({})); // "[object Object]"
+console.log(Object.prototype.toString.call(function(){})); // "[object Function]"
+console.log(Object.prototype.toString.call(new Date())); // "[object Date]"
+console.log(Object.prototype.toString.call(/abc/)); // "[object RegExp]"
+```
+
+- ### 数组
+
+```tex
+选择Array.isArray()最高效标准
+```
+
+## 数据比较
+
+### 1. 浮点数对比
+
+::: danger 提示
+
+直接使用 `===` 比较浮点数可能会导致意外结果。推荐使用一个容忍误差的比较方法。
+
+:::
+
+```js
+function areNumbersEqual(num1, num2, precision = 1e-10) {
+  return Math.abs(num1 - num2) < precision;
+}
+
+console.log(areNumbersEqual(0.1 + 0.2, 0.3)); // 输出: true
+console.log(areNumbersEqual(0.1 + 0.2, 0.3000000001)); // 输出: false
+```
+
+::: tip 业务场景较多，建议使用
+
+**专业的数字处理库**（如 `Decimal.js` 或 `BigNumber.js`）来进行高精度计算
+
+:::
+
+| 特性           | Decimal.js                                      | BigNumber.js                            |
+| -------------- | ----------------------------------------------- | --------------------------------------- |
+| **精度**       | 高精度的浮点数计算，支持任意精度                | 高精度的数字处理，支持任意精度          |
+| **性能**       | 性能较慢，适合需要高精度的应用                  | 性能较好，尤其是在处理较大数值时        |
+| **库体积**     | 相对较大                                        | 相对较小                                |
+| **兼容性**     | 支持现代浏览器和 Node.js，需引入额外的 Polyfill | 支持现代浏览器和 Node.js，无需 Polyfill |
+| **API 风格**   | 提供了类似数值的 API                            | 提供了更为传统的链式 API                |
+| **使用场景**   | 需要高精度、浮动计算的场景，如金融计算          | 需要高精度、快速计算的场景，如大数计算  |
+| **API 易用性** | API 简单，类似数学运算                          | API 也较为简单，但支持更多的自定义操作  |
+| **依赖性**     | 无依赖                                          | 无依赖                                  |
+
+**Decimal.js 示例**
+
+```javascript
+// 引入 Decimal.js
+import Decimal from "decimal.js";
+
+// 创建 Decimal 实例
+const num1 = new Decimal(0.1);
+const num2 = new Decimal(0.2);
+
+// 加法操作
+const result = num1.plus(num2);
+
+console.log(result.toString()); // 输出 "0.3"
+```
+
+**BigNumber.js 示例**
+
+```
+javascript复制代码// 引入 BigNumber.js
+import BigNumber from 'bignumber.js';
+
+// 创建 BigNumber 实例
+const num1 = new BigNumber(0.1);
+const num2 = new BigNumber(0.2);
+
+// 加法操作
+const result = num1.plus(num2);
+
+console.log(result.toString()); // 输出 "0.3"
+```
+
+::: warning 总结
+
+- **Decimal.js** 更适合于需要极高精度的计算，特别是在金融、科学计算等领域。
+- **BigNumber.js** 更适合快速处理大数值计算，且性能较优。
+
+:::
+
+### 2.数据对比
+
+::: info 场景
+
+用户个人信息修改时的检查
+
+:::
+
+#### 2.1 数据量较小的情况下
+
+::: danger 提醒
+
+数据量超过 1000，频繁触发，就会出现性能问题
+
+:::
+
+```js
+function compareData(localData, remoteData) {
+  // 比较两个数组中的对象，找出差异
+  let added = localData.filter((item) => !remoteData.includes(item));
+  let removed = remoteData.filter((item) => !localData.includes(item));
+  let updated = localData.filter(
+    (item) =>
+      remoteData.includes(item) &&
+      item !== remoteData.find((d) => d.id === item.id)
+  );
+  return { added, removed, updated };
+}
+```
+
+#### 2.2 降低时间复杂度
+
+```js
+// 方案1 使用Set数据结构
+// 差异检测：通过比较 id 来找出新增和删除的记录，使用 JSON.stringify() 来深度比较对象的内容，避免了对象属性顺序不同的问题。对于复杂的对象比较，可以根据需要自定义深度比较的方式。
+function compareData(localData, remoteData) {
+  const added = [];
+  const removed = [];
+  const updated = [];
+
+  const localDataMap = new Map(localData.map((item) => [item.id, item]));
+  const remoteDataMap = new Map(remoteData.map((item) => [item.id, item]));
+
+  // 遍历本地数据
+  for (const [id, localItem] of localDataMap) {
+    const remoteItem = remoteDataMap.get(id);
+
+    if (!remoteItem) {
+      added.push(localItem); // 新增的记录
+    } else if (JSON.stringify(localItem) !== JSON.stringify(remoteItem)) {
+      updated.push(localItem); // 更新的记录
+    }
+  }
+
+  // 遍历远程数据，找出删除的记录
+  for (const [id, remoteItem] of remoteDataMap) {
+    if (!localDataMap.has(id)) {
+      removed.push(remoteItem); // 删除的记录
+    }
+  }
+
+  return { added, removed, updated };
+}
+// 方案2 进阶 一次遍历
+function compareData(localData, remoteData) {
+  const added = [];
+  const removed = [];
+  const updated = [];
+
+  const localDataMap = new Map(localData.map((item) => [item.id, item]));
+  const remoteDataMap = new Map(remoteData.map((item) => [item.id, item]));
+
+  // 遍历本地数据
+  for (const [id, localItem] of localDataMap) {
+    const remoteItem = remoteDataMap.get(id);
+
+    if (!remoteItem) {
+      added.push(localItem); // 新增的记录
+    } else if (JSON.stringify(localItem) !== JSON.stringify(remoteItem)) {
+      updated.push(localItem); // 更新的记录
+    }
+  }
+
+  // 遍历远程数据，找出删除的记录
+  for (const [id, remoteItem] of remoteDataMap) {
+    if (!localDataMap.has(id)) {
+      removed.push(remoteItem); // 删除的记录
+    }
+  }
+
+  return { added, removed, updated };
+}
+```
+
+### 3. 数据合并
+
+**对象合并**
+
+```js
+function mergeData(oldData, newData) {
+  for (let key in newData) {
+    if (newData[key] !== oldData[key]) {
+      oldData[key] = newData[key]; // 更新旧数据
+    }
+  }
+  return oldData;
+}
+```
+
+::: info 场景：数组对象合并
+
+检查 `形参1` 中是否有与 `形参2` 匹配的 `id`，如果没有匹配到，就将 `形参2` 中的对象添加到 `形参1` 中。最终结果是：将 `形参2` 中的数据合并到 `形参1` 中，同时保证所有的 `id` 都被包含
+
+:::
+
+```js
+function mergeArrays(arr1, arr2) {
+  // 将 arr1 和 arr2 合并，首先合并 arr1 中已有的匹配项
+  arr2.forEach((item2) => {
+    // 查找 arr1 中是否有与 item2 相同 id 的项
+    const index = arr1.findIndex((item1) => item1.id === item2.id);
+
+    if (index !== -1) {
+      // 如果找到匹配项，则合并数据
+      arr1[index] = { ...arr1[index], ...item2 };
+    } else {
+      // 如果没有匹配项，则将 item2 添加到 arr1
+      arr1.push(item2);
+    }
+  });
+
+  return arr1;
+}
+
+// 示例数据
+const arr1 = [
+  { id: 1, name: "John", age: 28 },
+  { id: 2, name: "Jane", age: 24 },
+];
+
+const arr2 = [
+  { id: 1, name: "John名字改变了", address: "New York" }, // [!code error]
+  { id: 2, address: "Los Angeles" },
+  { id: 3, name: "Tom", age: 30 },
+];
+
+// 调用 mergeArrays 函数
+const mergedResult = mergeArrays(arr1, arr2);
+
+// 输出合并后的结果
+console.log(mergedResult);
+[
+  {
+    id: 1,
+    name: "John名字改变了",
+    age: 28,
+    address: "New York",
+  },
+  {
+    id: 2,
+    name: "Jane",
+    age: 24,
+    address: "Los Angeles",
+  },
+  {
+    id: 3,
+    name: "Tom",
+    age: 30,
+  },
+];
+```
+
+## 4. 数组去重
+
+#### 4.1 一维 数据量庞大
+
+::: tip
+当数组的数量非常大时，性能最佳的去重方案通常依赖于使用 Set 或 Map 数据结构，因为它们在大多数情况下能提供常数时间复杂度 (O(1)) 的查找和插入操作。
+:::
+
+```js
+function removeDuplicatesById(arr) {
+  const seen = new Map();
+  const result = [];
+
+  for (const item of arr) {
+    if (!seen.has(item.id)) {
+      seen.set(item.id, true); // 只要没有这个 id，就插入 Map
+      result.push(item);
+    }
+  }
+  return result;
+}
+const arr = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+  { id: 1, name: "Alice Updated" },
+  { id: 3, name: "Charlie" },
+  { id: 2, name: "Bob Updated" },
+  { id: 4, name: "David" },
+];
+
+const uniqueArr = removeDuplicatesById(arr);
+console.log(uniqueArr);
+// 输出: [
+//   { id: 1, name: 'Alice' },
+//   { id: 2, name: 'Bob' },
+//   { id: 3, name: 'Charlie' },
+//   { id: 4, name: 'David' }
+// ]
+
+```
+
+#### 4.2 多维 
+
+::: tip 数组对象中，有多级嵌套 
+
+1 先递归处理
+
+2 在展平数组的过程中，我们使用 `Map` 或 `Set` 来确保每个 `id` 只出现一次。
+
+:::
+
+~~~js
+function flattenArray(arr) {
+  const result = [];
+  
+  // 递归扁平化数组
+  arr.forEach(item => {
+    result.push(item); // 加入当前对象
+    if (item.children && item.children.length > 0) {
+      result.push(...flattenArray(item.children)); // 递归扁平化 children 数组
+    }
+  });
+
+  return result;
+}
+~~~
+
