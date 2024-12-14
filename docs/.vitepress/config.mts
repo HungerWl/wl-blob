@@ -8,23 +8,37 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     search: {
-      provider: "local",
+      provider: 'local',
     },
     outline: "deep", // 默认显示较深的目录层级
     nav: [
       { text: "首页", link: "/" },
-      { text: "个人笔记", link: "/个人笔记/JavaScript.md" },
+      {
+        text: "前端物语",
+        items: [
+          { text: "JavaScript", link: "/前端物语/JavaScript.md" }
+        ]
+      },
+      { text: "工作日记", link: "/工作日记/index.md" },
+      { text: "工具库", link: "/工具库/index.md" },
+
     ],
     sidebar: {
-      "/个人笔记/": [
+      "/前端物语/": [
         {
-          text: "目录",
-          items: [{ text: "JavaScript", link: "/个人笔记/JavaScript.md" }],
+          text: "JavaScript",
+          items: [{ text: "", link: "/前端物语/JavaScript.md" }],
+        },
+      ],
+      "/工作日记/": [
+        {
+          text: "工作日记",
+          items: [{ text: "", link: "/工作日记/index.md" }],
         },
       ],
     },
     socialLinks: [
-      { icon: "github", link: "https://github.com/vuejs/vitepress" },
+      { icon: "github", link: "https://github.com/HungerWl" },
     ],
   },
 });

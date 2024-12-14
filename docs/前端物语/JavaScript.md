@@ -6,7 +6,7 @@
 
 ## 递归运用
 
-### 1. 数据校验
+### 1. 扁平化
 
 ```js
 // 示例数据
@@ -37,9 +37,15 @@ function flattTree(tree) {
 
 let a = flattTree(treeData);
 console.log(a);
+// [
+//   { id: 1, name: "Node 1", children: [[Object], [Object]] },
+//   { id: 2, name: "Node 2", children: [] },
+//   { id: 3, name: "Node 3", children: [[Object]] },
+//   { id: 4, name: "Node 4", children: [] },
+// ];
 ```
 
-### 2. 数据校验
+### 2. 表单校验
 
 ```js
 function validateTree(tree) {
@@ -593,7 +599,7 @@ console.log(mergedResult);
 ];
 ```
 
-## 4. 数组去重
+### 4. 数组去重
 
 #### 4.1 一维 数据量庞大
 
@@ -631,12 +637,11 @@ console.log(uniqueArr);
 //   { id: 3, name: 'Charlie' },
 //   { id: 4, name: 'David' }
 // ]
-
 ```
 
-#### 4.2 多维 
+#### 4.2 多维
 
-::: tip 数组对象中，有多级嵌套 
+::: tip 数组对象中，有多级嵌套
 
 1 先递归处理
 
@@ -644,12 +649,12 @@ console.log(uniqueArr);
 
 :::
 
-~~~js
+```js
 function flattenArray(arr) {
   const result = [];
-  
+
   // 递归扁平化数组
-  arr.forEach(item => {
+  arr.forEach((item) => {
     result.push(item); // 加入当前对象
     if (item.children && item.children.length > 0) {
       result.push(...flattenArray(item.children)); // 递归扁平化 children 数组
@@ -658,5 +663,203 @@ function flattenArray(arr) {
 
   return result;
 }
-~~~
 
+function removeDuplicatesById(arr) {
+  const flattenedArr = flattenArray(arr); // 扁平化处理
+  const seen = new Map();
+  const result = [];
+
+  for (const item of flattenedArr) {
+    if (item && item.id && !seen.has(item.id)) {
+      seen.set(item.id, true); // 使用 Map 按 id 去重
+      result.push(item);
+    }
+  }
+
+  return result;
+}
+const arr = [
+  {
+    id: 1,
+    name: "Alice",
+    children: [
+      {
+        id: 4,
+        name: "David",
+        children: [
+          {
+            id: 5,
+            name: "Eva",
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Bob",
+  },
+  {
+    id: 3,
+    name: "Alice Updated",
+  },
+  {
+    id: 1,
+    name: "Alice Duplicate",
+    children: [],
+  },
+];
+
+const uniqueArr = removeDuplicatesById(arr);
+console.log(uniqueArr);
+// [
+//   { id: 1, name: "Alice", children: [[Object]] },
+//   { id: 2, name: "Bob" },
+//   { id: 3, name: "Alice Updated" },
+//   { id: 4, name: "David", children: [[Object]] },
+//   { id: 5, name: "Eva", children: [] },
+// ];
+```
+
+### 5.树形结构数据映射
+
+:::tip 场景
+树形控件，勾选的节点数据，映射到另外一个树形控件，且子夫关系要包含进去。左：默认值范围，右：默认值
+:::
+
+```js
+// 源树的数据
+const sourceData = [
+  {
+    label: "节点1",
+    id: 1,
+    children: [
+      {
+        label: "子节点1-1",
+        id: 11,
+        children: [{ label: "子节点1-1-1", id: 111 }],
+      },
+      { label: "子节点1-2", id: 12 },
+    ],
+  },
+  {
+    label: "节点2",
+    id: 2,
+    children: [
+      { label: "子节点2-1", id: 21 },
+      { label: "子节点2-2", id: 22 },
+    ],
+  },
+];
+
+// 用于存储选中节点的 ID 数组
+let checkedNodeIds = [1, 11, 111, 22]; // 假设选中了节点1、子节点1-1、子节点1-1-1 和 子节点2-2
+
+// 递归函数：根据选中的节点生成目标树
+function createNode(node, selectedNodeIds) {
+  // 如果节点为空，则返回 null
+  if (!node) return null;
+
+  // 判断当前节点是否被选中
+  const isSelected = selectedNodeIds.includes(node.id);
+
+  // 递归处理子节点，确保每层子节点都正确处理
+  const children = node.children
+    ? node.children
+        .map((childNode) => createNode(childNode, selectedNodeIds))
+        .filter(Boolean)
+    : [];
+
+  // 如果当前节点被选中，或者它有选中的子节点，则将其添加到目标树
+  if (isSelected || children.length > 0) {
+    return {
+      ...node,
+      children, // 保持子节点关系
+    };
+  }
+
+  return null;
+}
+
+// 遍历源树数据，生成目标树
+function generateTargetTree(sourceData, checkedNodeIds) {
+  return sourceData
+    .map((rootNode) => createNode(rootNode, checkedNodeIds))
+    .filter(Boolean); // 过滤掉没有选中或无子节点的节点
+}
+
+// 生成目标树的数据
+const targetData = generateTargetTree(sourceData, checkedNodeIds);
+
+// 输出目标树的数据
+console.log("目标树数据：", JSON.stringify(targetData, null, 2));
+// 目标树数据： [
+//   {
+//     "label": "节点1",
+//     "id": 1,
+//     "children": [
+//       {
+//         "label": "子节点1-1",
+//         "id": 11,
+//         "children": [
+//           {
+//             "label": "子节点1-1-1",
+//             "id": 111
+//           }
+//         ]
+//       }
+//     ]
+//   },
+//   {
+//     "label": "节点2",
+//     "id": 2,
+//     "children": [
+//       {
+//         "label": "子节点2-2",
+//         "id": 22
+//       }
+//     ]
+//   }
+// ]
+```
+
+## 函数柯里化
+
+::: tip 作用
+一个多参数的函数转换成一系列每次接受一个参数的函数，并且返回接收余下参数的新函数
+:::
+**例子**
+
+```jsx
+function add(a, b) {
+  return a + b;
+}
+```
+
+**如果我们使用柯里化，将其转换成一系列接受单一参数的函数：**
+
+```jsx
+function curriedAdd(a) {
+  return function (b) {
+    return a + b;
+  };
+}
+```
+
+**封装**
+
+```js
+function curry(fn) {
+  const arity = fn.length; // 获取原函数的参数个数
+  return function curried(...args) {
+    if (args.length >= arity) {
+      return fn(...args); // 参数满足数量，执行原函数
+    } else {
+      return function (...next) {
+        return curried(...args, ...next); // 继续接收参数
+      };
+    }
+  };
+}
+```

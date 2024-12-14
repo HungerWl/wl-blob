@@ -2,7 +2,11 @@ import { h } from "vue";
 import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import NavBarTitleBefore from "./components/NavBarTitleBefore.vue";
+import MNavLinks from "./components/MNavLinks.vue";
+
+
 import "./style.css";
+
 export default {
   extends: DefaultTheme,
   Layout() {
@@ -11,5 +15,6 @@ export default {
     });
   },
   enhanceApp({ app, router, siteData }) {
+    app.component("MNavLinks", MNavLinks);
   },
 } satisfies Theme;
