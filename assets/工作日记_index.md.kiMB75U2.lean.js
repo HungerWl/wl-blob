@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./chunks/framework.DhgVJjF7.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"工作日记/index.md","filePath":"工作日记/index.md"}'),n={name:"工作日记/index.md"};function r(o,s,c,d,i,p){return a(),t("div")}const f=e(n,[["render",r]]);export{m as __pageData,f as default};
