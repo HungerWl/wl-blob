@@ -5,17 +5,8 @@
     "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
-    "types": [
-      "vue"
-    ]
+    "types": ["vue"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.vue",
-    "**/.vitepress/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "**/.vitepress/**/*"],
+  "exclude": ["node_modules"]
 }
