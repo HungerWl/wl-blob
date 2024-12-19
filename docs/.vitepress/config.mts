@@ -47,6 +47,14 @@ export default defineConfig({
                 { text: "SEO框架推荐", link: "/工作日记/SEO框架推荐.md" },
               ],
             },
+            {
+              text: "框架踩坑",
+              collapsed: true,
+              items: [
+                { text: "vue2-elementui", link: "/工作日记/element.md" },
+
+              ],
+            }
           ],
         },
       ],
