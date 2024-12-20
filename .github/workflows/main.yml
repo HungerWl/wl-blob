@@ -1,0 +1,41 @@
+name: Deploy Static Page to GitHub Pages
+
+# 触发条件
+on:
+  push:
+    branches:
+      - master  # 仅在推送到 master 分支时触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 指定运行的操作系统
+
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 设置 Node.js 环境
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # 使用 Node.js 版本 16
+
+      # 安装依赖
+      - name: Install dependencies
+        run: npm install
+
+      # 构建项目
+      - name: Build the project
+        run: npm run build
+
+      # 部署到 gh-pages 分支
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # 部署的目录（通常是构建目录，如 dist）
+          folder: dist
+          # 目标分支
+          branch: gh-page
+          # 使用 GitHub Token 进行身份验证
+          token: ${{ secrets.GITHUB_TOKEN }}
