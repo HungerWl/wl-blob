@@ -27,7 +27,7 @@ jobs:
 
       # 构建项目
       - name: Build the project
-        run: npm run build
+        run: npm run docs:build
 
       # 部署到 gh-pages 分支
       - name: Deploy to GitHub Pages
