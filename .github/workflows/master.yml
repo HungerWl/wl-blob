@@ -34,8 +34,8 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           # 部署的目录（通常是构建目录，如 dist）
-          folder: dist
+          folder: docs/.vitepress/dist  # 修改为 VitePress 的构建输出目录
           # 目标分支
-          branch: gh-page
+          branch: gh-pages  # 修改为 gh-pages
           # 使用 GitHub Token 进行身份验证
           token: ${{ secrets.GITHUB_TOKEN }}
