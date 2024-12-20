@@ -34,7 +34,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           # 使用 GitHub Token 进行身份验证
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           # 目标分支
           publish_branch: gh-page  # 保持为 gh-page
           # 部署的目录（通常是构建目录，如 dist）
