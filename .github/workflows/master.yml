@@ -27,15 +27,15 @@ jobs:
 
       # 构建项目
       - name: Build the project
-        run: npm run docs:build
+        run: npm run build
 
-      # 部署到 gh-pages 分支
+      # 部署到 gh-page 分支
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          # 部署的目录（通常是构建目录，如 dist）
-          folder: docs/.vitepress/dist  # 修改为 VitePress 的构建输出目录
-          # 目标分支
-          branch: gh-pages  # 修改为 gh-pages
           # 使用 GitHub Token 进行身份验证
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 目标分支
+          publish_branch: gh-page  # 保持为 gh-page
+          # 部署的目录（通常是构建目录，如 dist）
+          publish_dir: docs/.vitepress/dist  # 确保这是 VitePress 的构建输出目录
