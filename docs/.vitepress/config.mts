@@ -54,6 +54,10 @@ export default defineConfig({
                 { text: "vue2-elementui", link: "/工作日记/element.md" },
 
               ],
+            },
+            {
+              text: "Echarts图表大屏适配方案",
+              link: "/工作日记/echarts.md"
             }
           ],
         },
